@@ -45,6 +45,20 @@ def load_history():
     except Exception as e:
         return pd.DataFrame()
 
+@st.cache_data
+def load_vessel_list():
+    try:
+        df = pd.read_parquet(DATA_PATH)
+        vessels = (
+            df.drop_duplicates('vessel_name')
+            [['vessel_name','vessel_type','teu_capacity','dwt','loa','draft','company_name','service_line']]
+            .sort_values('vessel_name')
+            .reset_index(drop=True)
+        )
+        return vessels
+    except Exception:
+        return pd.DataFrame()
+
 # ── Feature builder ───────────────────────────────────────────────────────────
 PORT_MAP = {"Haifa": 0, "Ashdod": 1}
 VESSEL_TYPE_MAP = {"CONTAINER": 0, "BULK": 1, "GENERAL_CARGO": 2, "RORO": 3, "TANKER": 4}
@@ -165,13 +179,28 @@ with tab1:
 
     with col1:
         st.subheader("Vessel Info")
-        vessel_id    = st.text_input("Vessel ID / IMO", value="MSC-DIANA-2024")
-        vessel_type  = st.selectbox("Vessel Type", ["CONTAINER", "BULK", "GENERAL_CARGO", "RORO", "TANKER"])
-        teu_capacity = st.slider("TEU Capacity", 0, 24000, 8000, 500,
+        vessels_df = load_vessel_list()
+
+        # Filter by company
+        companies = ["All"] + sorted(vessels_df['company_name'].unique().tolist())
+        selected_company = st.selectbox("Filter by Company", companies)
+        filtered = vessels_df if selected_company == "All" else vessels_df[vessels_df['company_name'] == selected_company]
+
+        vessel_options = filtered['vessel_name'].tolist()
+        selected_vessel = st.selectbox("Select Vessel", vessel_options)
+
+        # Auto-fill from database
+        vrow = filtered[filtered['vessel_name'] == selected_vessel].iloc[0]
+        vessel_id    = selected_vessel
+        vessel_type  = st.selectbox("Vessel Type", ["CONTAINER", "BULK", "GENERAL_CARGO", "RORO", "TANKER"],
+                                     index=["CONTAINER","BULK","GENERAL_CARGO","RORO","TANKER"].index(vrow['vessel_type'])
+                                     if vrow['vessel_type'] in ["CONTAINER","BULK","GENERAL_CARGO","RORO","TANKER"] else 0)
+        teu_capacity = st.slider("TEU Capacity", 0, 24000,
+                                  int(min(vrow['teu_capacity'], 24000)), 500,
                                   disabled=(vessel_type != "CONTAINER"))
-        dwt          = st.number_input("DWT (tons)", 1000, 500000, 80000, 1000)
-        loa          = st.slider("LOA (m)", 50, 450, 250)
-        draft        = st.slider("Draft (m)", 2.0, 18.0, 12.0, 0.1)
+        dwt          = st.number_input("DWT (tons)", 1000, 500000, int(max(min(vrow['dwt'], 500000), 1000)), 1000)
+        loa          = st.slider("LOA (m)", 50, 450, int(min(max(vrow['loa'], 50), 450)))
+        draft        = st.slider("Draft (m)", 2.0, 18.0, float(min(max(vrow['draft'], 2.0), 18.0)), 0.1)
 
     with col2:
         st.subheader("Port & Schedule")
@@ -180,9 +209,11 @@ with tab1:
         max_berths   = 20 if port_name == "Haifa" else 15
         berth_id     = st.selectbox("Requested Berth",
                                      [f"{berth_prefix}{i:02d}" for i in range(1, max_berths + 1)])
-        service_line = st.selectbox("Service Line", [
-            "Asia-EU", "Med-India", "Asia-Med", "Intra-Med", "Red-Sea-Med",
-            "North-EU", "West-Africa", "East-Africa", "Americas", "Adriatic"])
+        service_lines = ["Asia-EU", "Med-India", "Asia-Med", "Intra-Med", "Red-Sea-Med",
+                         "North-EU", "West-Africa", "East-Africa", "Americas", "Adriatic"]
+        default_sl = vrow['service_line'] if vrow['service_line'] in service_lines else "Asia-EU"
+        service_line = st.selectbox("Service Line", service_lines,
+                                     index=service_lines.index(default_sl))
         eta_date     = st.date_input("ETA Date", value=date.today() + timedelta(days=2))
         eta_hour     = st.slider("ETA Hour (UTC)", 0, 23, 10)
         eta_dt       = datetime(eta_date.year, eta_date.month, eta_date.day, eta_hour)

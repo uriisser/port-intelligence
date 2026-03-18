@@ -28,6 +28,11 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+st.markdown(
+    f"<div style='text-align:right; color:gray; font-size:14px;'>{datetime.now().strftime('%A, %d %B %Y  |  %H:%M UTC')}</div>",
+    unsafe_allow_html=True,
+)
+
 # ── Load models ───────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_models():

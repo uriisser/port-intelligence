@@ -59,9 +59,29 @@ def load_vessel_list():
     except Exception:
         return pd.DataFrame()
 
-# ── Feature builder ───────────────────────────────────────────────────────────
-PORT_MAP = {"Haifa": 0, "Ashdod": 1}
-VESSEL_TYPE_MAP = {"CONTAINER": 0, "BULK": 1, "GENERAL_CARGO": 2, "RORO": 3, "TANKER": 4}
+# ── Feature builder — matches exact training feature order ─────────────────────
+VESSEL_TYPE_MAP  = {"CONTAINER": 0, "BULK": 1, "GENERAL_CARGO": 2, "RORO": 3, "TANKER": 4}
+TEU_CLASS_MAP    = {"small": 0, "medium": 1, "large": 2, "ultra": 3}
+PORT_MAP         = {"Haifa": 0, "Ashdod": 1}
+BERTH_ZONE_MAP   = {"north": 0, "central": 1, "south": 2, "industrial": 3}
+SERVICE_LINE_MAP = {"Asia-EU":0,"Med-India":1,"Asia-Med":2,"Intra-Med":3,"Red-Sea-Med":4,
+                    "North-EU":5,"West-Africa":6,"East-Africa":7,"Americas":8,"Adriatic":9}
+
+def teu_class_enc(teu):
+    if teu < 3000:  return TEU_CLASS_MAP["small"]
+    if teu < 8000:  return TEU_CLASS_MAP["medium"]
+    if teu < 14000: return TEU_CLASS_MAP["large"]
+    return TEU_CLASS_MAP["ultra"]
+
+def berth_zone_enc(berth_id):
+    try:
+        num = int(berth_id[1:])
+    except Exception:
+        num = 1
+    if num <= 5:   return BERTH_ZONE_MAP["north"]
+    if num <= 10:  return BERTH_ZONE_MAP["central"]
+    if num <= 15:  return BERTH_ZONE_MAP["south"]
+    return BERTH_ZONE_MAP["industrial"]
 
 def build_features(vessel_type, teu_capacity, dwt, loa, draft,
                    port_name, berth_id, service_line,
@@ -70,57 +90,72 @@ def build_features(vessel_type, teu_capacity, dwt, loa, draft,
                    weather_wind, berth_comp,
                    arrivals_6h, arrivals_12h, arrivals_24h, queue_pos):
 
-    hour = eta_dt.hour
-    dow  = eta_dt.weekday()
+    hour  = eta_dt.hour
+    dow   = eta_dt.weekday()
+    dom   = eta_dt.day
     month = eta_dt.month
+    week  = eta_dt.isocalendar()[1]
+    quarter = (month - 1) // 3 + 1
+
+    berth_competition_ratio = berth_comp  # same scale
+    load_factor = (teu_loaded + teu_discharged) / max(teu_capacity, 1) if teu_capacity > 0 else 0.0
+    berth_num = int(berth_id[1:]) if len(berth_id) > 1 else 1
 
     f = np.zeros(46, dtype=np.float32)
+    # [0-10] temporal
     f[0]  = hour
     f[1]  = dow
-    f[2]  = month
-    f[3]  = np.sin(2 * np.pi * hour / 24)
-    f[4]  = np.cos(2 * np.pi * hour / 24)
-    f[5]  = np.sin(2 * np.pi * dow / 7)
-    f[6]  = np.cos(2 * np.pi * dow / 7)
-    f[7]  = np.sin(2 * np.pi * month / 12)
-    f[8]  = np.cos(2 * np.pi * month / 12)
-    f[9]  = int(dow >= 5)
-    f[10] = int(hour < 6 or hour >= 22)
-    f[11] = int(8 <= hour <= 18)
-    f[12] = int(month in [6, 7, 8])
-    f[13] = int(month in [12, 1, 2])
-    f[14] = 0
-    f[15] = arrivals_6h
-    f[16] = arrivals_12h
-    f[17] = teu_capacity
-    f[18] = dwt
-    f[19] = loa
-    f[20] = draft
-    f[21] = cargo_tons
-    f[22] = teu_loaded
-    f[23] = teu_discharged
-    f[24] = teu_loaded + teu_discharged
-    f[25] = cargo_tons / max(dwt, 1)
-    f[26] = cranes_used
-    f[27] = queue_pos
-    f[28] = arrivals_24h
-    f[29] = arrivals_12h / max(arrivals_24h, 1)
-    f[30] = berth_comp
-    f[31] = berth_comp * arrivals_12h
-    f[32] = berth_comp ** 2
-    f[33] = arrivals_6h / max(cranes_used, 1)
-    f[34] = queue_pos * berth_comp
-    f[35] = 0
-    f[36] = 0
-    f[37] = 0
-    f[38] = 0
-    f[39] = weather_wind
-    f[40] = int(weather_wind > 30)
-    f[41] = berth_comp
-    f[42] = cargo_tons / max(teu_capacity or 1, 1)
-    f[43] = teu_discharged / max(teu_loaded + teu_discharged + 1, 1)
-    f[44] = VESSEL_TYPE_MAP.get(vessel_type, 0)
-    f[45] = PORT_MAP.get(port_name, 0)
+    f[2]  = dom
+    f[3]  = month
+    f[4]  = week
+    f[5]  = quarter
+    f[6]  = int(dow >= 5)                    # is_weekend
+    f[7]  = int(8 <= hour <= 18)             # is_peak_hour
+    f[8]  = 0                                # holiday_flag
+    f[9]  = 0                                # days_since_holiday
+    f[10] = 0                                # eta_deviation_min
+    # [11-16] vessel
+    f[11] = 1 if vessel_type == "CONTAINER" else 0   # company_tier (proxy)
+    f[12] = int(vessel_type == "CONTAINER")           # is_container
+    f[13] = teu_capacity / 24000.0                    # teu_cap_norm
+    f[14] = dwt / 220000.0                            # dwt_norm
+    f[15] = loa / 400.0                               # loa_norm
+    f[16] = load_factor                               # load_factor
+    # [17-18] port/berth
+    f[17] = int(port_name == "Haifa")                # port_haifa
+    f[18] = berth_num                                # berth_num
+    # [19-25] operational
+    f[19] = arrivals_6h
+    f[20] = arrivals_12h
+    f[21] = arrivals_24h
+    f[22] = berth_competition_ratio                  # berth_competition_ratio
+    f[23] = queue_pos
+    f[24] = arrivals_12h / max(cranes_used, 1)       # crane_sharing_risk
+    f[25] = 1.0                                      # service_frequency (default)
+    # [26-29] weather / cargo
+    f[26] = weather_wind                             # weather_wind_knots
+    f[27] = int(weather_wind > 30)                   # weather_storm_flag
+    f[28] = float(np.log1p(cargo_tons))              # cargo_tons_log
+    f[29] = abs(teu_loaded - teu_discharged) / max(teu_loaded + teu_discharged + 1, 1)  # teu_imbalance
+    # [30-35] cyclical encodings
+    f[30] = np.sin(2 * np.pi * hour / 24)
+    f[31] = np.cos(2 * np.pi * hour / 24)
+    f[32] = np.sin(2 * np.pi * dow / 7)
+    f[33] = np.cos(2 * np.pi * dow / 7)
+    f[34] = np.sin(2 * np.pi * month / 12)
+    f[35] = np.cos(2 * np.pi * month / 12)
+    # [36-40] raw duplicates stored during training
+    f[36] = cranes_used
+    f[37] = dwt
+    f[38] = weather_wind
+    f[39] = int(weather_wind > 30)
+    f[40] = berth_comp                               # berth_competition (raw)
+    # [41-45] label encodings
+    f[41] = VESSEL_TYPE_MAP.get(vessel_type, 0)
+    f[42] = teu_class_enc(teu_capacity)
+    f[43] = PORT_MAP.get(port_name, 0)
+    f[44] = berth_zone_enc(berth_id)
+    f[45] = SERVICE_LINE_MAP.get(service_line, 0)
 
     return f.reshape(1, -1)
 

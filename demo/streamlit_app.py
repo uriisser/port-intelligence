@@ -118,13 +118,13 @@ def run_predict(m1, m2, m3, X):
     mae    = m1['metrics']['mae']
     ci     = [round(max(0, wait - 1.5 * mae), 1), round(wait + 1.5 * mae, 1)]
 
-    occ_idx   = int(m2['xgb_cls'].predict(X)[0])
-    occ_proba = m2['xgb_cls'].predict_proba(X)[0]
-    classes   = m2['label_encoder'].classes_
+    occ_idx   = int(m2['model'].predict(X)[0])
+    occ_proba = m2['model'].predict_proba(X)[0]
+    classes   = m2['label_names']
     occ_class = classes[occ_idx]
     occ_probs = {c: round(float(p), 3) for c, p in zip(classes, occ_proba)}
 
-    cong_prob = float(m3['xgb_cls'].predict_proba(X)[0][1])
+    cong_prob = float(m3['model'].predict_proba(X)[0][1])
     threshold = m3.get('decision_threshold', 0.5)
     cong_flag = cong_prob >= threshold
 

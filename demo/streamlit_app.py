@@ -31,10 +31,15 @@ st.set_page_config(
 # ── Load models ───────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_models():
-    m1 = joblib.load(MODELS_DIR / "waiting_time_ensemble.pkl")
-    m2 = joblib.load(MODELS_DIR / "berth_occupancy.pkl")
-    m3 = joblib.load(MODELS_DIR / "congestion_risk.pkl")
-    return m1, m2, m3
+    try:
+        m1 = joblib.load(MODELS_DIR / "waiting_time_ensemble.pkl")
+        m2 = joblib.load(MODELS_DIR / "berth_occupancy.pkl")
+        m3 = joblib.load(MODELS_DIR / "congestion_risk.pkl")
+        return m1, m2, m3
+    except Exception as e:
+        st.error(f"Failed to load models from {MODELS_DIR}: {e}")
+        st.write("Files found:", list(MODELS_DIR.glob("*")) if MODELS_DIR.exists() else "Directory not found")
+        st.stop()
 
 @st.cache_data
 def load_history():

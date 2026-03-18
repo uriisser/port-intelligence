@@ -1,0 +1,24 @@
+# Port Intelligence API dependencies
+# Pin versions for reproducible Docker builds
+
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.0
+
+# ML model serving
+joblib==1.4.2
+xgboost==2.1.4
+lightgbm==4.5.0
+numpy==2.0.2
+scikit-learn==1.5.2
+
+# Cache
+redis==5.1.0
+
+# DB (optional — for logging predictions)
+asyncpg==0.30.0
+sqlalchemy==2.0.35
+
+# Data
+pandas==2.2.3
+pyarrow==17.0.0

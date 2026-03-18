@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \":*)",
+      "Bash(python -c \"import xgboost; import lightgbm; import shap; import sklearn; print\\(''xgb:'', xgboost.__version__, ''lgb:'', lightgbm.__version__, ''shap:'', shap.__version__, ''sklearn:'', sklearn.__version__\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python train_models.py)",
+      "Bash(python -c \"import sys; print\\(sys.executable\\)\")",
+      "Bash(C:/Python312/python.exe -m pip install shap)",
+      "Bash(python -m pip install xgboost lightgbm shap scikit-learn joblib)",
+      "Bash(python -m pip install scikit-learn joblib pyarrow)",
+      "Bash(python -m pip install \"numpy>=1.23\" --upgrade)",
+      "Bash(python -m pip install \"pandas>=2.1\" --upgrade)",
+      "Bash(python -m pip install --upgrade scipy shap xgboost lightgbm scikit-learn)",
+      "Bash(grep -n '\\\\\\\\u2192\\\\|→' train_models.py)",
+      "Bash(python -c \"import uvicorn, fastapi, redis, psycopg2\")",
+      "Bash(docker --version)",
+      "Bash(firebase login:*)"
+    ],
+    "additionalDirectories": [
+      "d:\\Code\\Shipping\\models"
+    ]
+  }
+}

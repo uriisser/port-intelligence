@@ -1,0 +1,288 @@
+{
+  "generated_at": "2026-03-15T11:08:27.903274Z",
+  "reference_rows": 72897,
+  "current_rows": 3103,
+  "reference_period": {
+    "start": "2024-01-01",
+    "end": "2025-12-01"
+  },
+  "current_period": {
+    "start": "2025-12-02",
+    "end": "2025-12-31"
+  },
+  "continuous_features": {
+    "waiting_anchor_hours": {
+      "ks_statistic": 0.0467,
+      "ks_p_value": 5e-06,
+      "psi": 0.0472,
+      "drift_flag": true,
+      "reference_stats": {
+        "mean": 7.199,
+        "std": 5.902,
+        "median": 5.9,
+        "p80": 11.1,
+        "p95": 18.4,
+        "min": 0.0,
+        "max": 59.8
+      },
+      "current_stats": {
+        "mean": 6.919,
+        "std": 5.733,
+        "median": 5.6,
+        "p80": 10.1,
+        "p95": 19.99,
+        "min": 0.0,
+        "max": 33.1
+      }
+    },
+    "berth_competition": {
+      "ks_statistic": 0.0939,
+      "ks_p_value": 0.0,
+      "psi": 0.1393,
+      "drift_flag": true,
+      "reference_stats": {
+        "mean": 1.076,
+        "std": 0.919,
+        "median": 0.873,
+        "p80": 1.683,
+        "p95": 2.825,
+        "min": 0.0,
+        "max": 8.483
+      },
+      "current_stats": {
+        "mean": 1.023,
+        "std": 0.885,
+        "median": 0.784,
+        "p80": 1.582,
+        "p95": 3.212,
+        "min": 0.0,
+        "max": 3.76
+      }
+    },
+    "weather_wind_knots": {
+      "ks_statistic": 0.0115,
+      "ks_p_value": 0.824657,
+      "psi": 0.0018,
+      "drift_flag": false,
+      "reference_stats": {
+        "mean": 7.978,
+        "std": 7.995,
+        "median": 5.5,
+        "p80": 12.8,
+        "p95": 23.9,
+        "min": 0.0,
+        "max": 94.8
+      },
+      "current_stats": {
+        "mean": 7.969,
+        "std": 7.858,
+        "median": 5.6,
+        "p80": 12.8,
+        "p95": 23.9,
+        "min": 0.0,
+        "max": 61.3
+      }
+    },
+    "teu_capacity": {
+      "ks_statistic": 0.0098,
+      "ks_p_value": 0.932755,
+      "psi": 0.0018,
+      "drift_flag": false,
+      "reference_stats": {
+        "mean": 7753.612,
+        "std": 8022.778,
+        "median": 5391.0,
+        "p80": 16809.0,
+        "p95": 22075.0,
+        "min": 0.0,
+        "max": 23953.0
+      },
+      "current_stats": {
+        "mean": 7737.546,
+        "std": 8024.303,
+        "median": 5391.0,
+        "p80": 16800.0,
+        "p95": 22262.0,
+        "min": 0.0,
+        "max": 23953.0
+      }
+    },
+    "dwt": {
+      "ks_statistic": 0.0106,
+      "ks_p_value": 0.890513,
+      "psi": 0.0023,
+      "drift_flag": false,
+      "reference_stats": {
+        "mean": 98725.58,
+        "std": 62984.254,
+        "median": 93972.0,
+        "p80": 163650.0,
+        "p95": 206639.0,
+        "min": 3067.0,
+        "max": 219830.0
+      },
+      "current_stats": {
+        "mean": 98203.087,
+        "std": 63434.94,
+        "median": 93609.0,
+        "p80": 164503.0,
+        "p95": 205774.6,
+        "min": 3067.0,
+        "max": 219830.0
+      }
+    },
+    "loa": {
+      "ks_statistic": 0.0099,
+      "ks_p_value": 0.92718,
+      "psi": 0.0012,
+      "drift_flag": false,
+      "reference_stats": {
+        "mean": 226.778,
+        "std": 81.705,
+        "median": 222.0,
+        "p80": 301.0,
+        "p95": 376.0,
+        "min": 71.0,
+        "max": 399.0
+      },
+      "current_stats": {
+        "mean": 227.609,
+        "std": 82.348,
+        "median": 222.0,
+        "p80": 303.0,
+        "p95": 378.0,
+        "min": 71.0,
+        "max": 399.0
+      }
+    },
+    "cargo_tons": {
+      "ks_statistic": 0.0144,
+      "ks_p_value": 0.562221,
+      "psi": 0.0028,
+      "drift_flag": false,
+      "reference_stats": {
+        "mean": 85663.289,
+        "std": 65313.592,
+        "median": 72682.0,
+        "p80": 146144.8,
+        "p95": 208731.2,
+        "min": 1246.0,
+        "max": 312500.0
+      },
+      "current_stats": {
+        "mean": 85631.343,
+        "std": 65419.908,
+        "median": 71298.0,
+        "p80": 145784.6,
+        "p95": 210379.8,
+        "min": 1466.0,
+        "max": 307405.0
+      }
+    }
+  },
+  "categorical_features": {
+    "vessel_type": {
+      "chi2_statistic": 80.387,
+      "chi2_p_value": 0.0,
+      "drift_flag": true,
+      "reference_distribution": {
+        "CONTAINER": 0.637,
+        "BULK": 0.199,
+        "GENERAL_CARGO": 0.097,
+        "RORO": 0.046,
+        "TANKER": 0.021
+      },
+      "current_distribution": {
+        "CONTAINER": 0.638,
+        "BULK": 0.199,
+        "GENERAL_CARGO": 0.091,
+        "RORO": 0.051,
+        "TANKER": 0.021
+      }
+    },
+    "port_name": {
+      "chi2_statistic": 0.06,
+      "chi2_p_value": 0.805921,
+      "drift_flag": false,
+      "reference_distribution": {
+        "Haifa": 0.605,
+        "Ashdod": 0.395
+      },
+      "current_distribution": {
+        "Haifa": 0.605,
+        "Ashdod": 0.395
+      }
+    },
+    "company_name": {
+      "chi2_statistic": 180.92,
+      "chi2_p_value": 0.0,
+      "drift_flag": true,
+      "reference_distribution": {
+        "Maersk": 0.157,
+        "MSC": 0.13,
+        "CMA CGM": 0.106,
+        "COSCO": 0.087,
+        "Hapag-Lloyd": 0.081,
+        "Other": 0.077,
+        "ONE": 0.064,
+        "Evergreen": 0.048,
+        "Gold Star": 0.038,
+        "ZIM": 0.038,
+        "Yang Ming": 0.037,
+        "HMM": 0.036,
+        "Sinokor": 0.03,
+        "Grimaldi": 0.025,
+        "OOCL": 0.024,
+        "PIL": 0.023
+      },
+      "current_distribution": {
+        "Maersk": 0.157,
+        "MSC": 0.122,
+        "CMA CGM": 0.102,
+        "COSCO": 0.084,
+        "Hapag-Lloyd": 0.084,
+        "Other": 0.079,
+        "ONE": 0.063,
+        "Evergreen": 0.053,
+        "Gold Star": 0.042,
+        "ZIM": 0.039,
+        "HMM": 0.038,
+        "Yang Ming": 0.037,
+        "Sinokor": 0.029,
+        "Grimaldi": 0.028,
+        "PIL": 0.022,
+        "OOCL": 0.021
+      }
+    }
+  },
+  "alerts": [
+    {
+      "feature": "waiting_anchor_hours",
+      "severity": "CRITICAL",
+      "ks_p": 5e-06,
+      "psi": 0.0472,
+      "message": "waiting_anchor_hours: KS p=0.0"
+    },
+    {
+      "feature": "berth_competition",
+      "severity": "CRITICAL",
+      "ks_p": 0.0,
+      "psi": 0.1393,
+      "message": "berth_competition: KS p=0.0"
+    },
+    {
+      "feature": "vessel_type",
+      "severity": "WARNING",
+      "chi2_p": 0.0,
+      "message": "vessel_type: distribution shift detected (chi2 p=0.0000)"
+    },
+    {
+      "feature": "company_name",
+      "severity": "WARNING",
+      "chi2_p": 0.0,
+      "message": "company_name: distribution shift detected (chi2 p=0.0000)"
+    }
+  ],
+  "drift_detected": true,
+  "critical_drift": true
+}

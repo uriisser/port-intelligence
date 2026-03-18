@@ -1,0 +1,22 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "port-api",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "port-dashboard",
+          "region": "us-central1"
+        }
+      }
+    ]
+  }
+}
